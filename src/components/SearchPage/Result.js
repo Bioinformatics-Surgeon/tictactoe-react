@@ -1,7 +1,5 @@
 import React from 'react';
 
-const Result = () => (
-    <p> Results Here </p>
-);
+const Result = props => <p> {props.name} </p>;
 
 export default Result;
