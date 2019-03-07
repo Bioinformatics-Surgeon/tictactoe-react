@@ -1,55 +1,29 @@
 import React from 'react';
-import SearchForm from '../SearchPage/SearchForm.js';
-import Result from '../SearchPage/Result.js';
-import NoResults from '../SearchPage/NoResult.js';
-import $ from 'axios';
+import { BrowserRouter, Route, Link, Switch } from 'react-router-dom';
+import HomePage from './components/HomePage/HomePage';
+import SearchPage from './components/SearchPage/SearchPage';
+import Error from './components/Error/Error';
+import './App.css';
 
-class SearchPage extends React.Component {
-  state = {
-    restaurants: [],
-    results: [],
-    input: ''
-  };
-
-  handleChange = event => {
-    this.setState({ input: event.target.value });
-  };
-
-  handleClick = event => {
-    event.preventDefault();
-    const restaurantsFiltered = this.state.restaurants.filter(place =>
-      place.categories.includes(this.state.input)
-    );
-    this.setState({ results: restaurantsFiltered });
-  };
-
-  componentDidMount() {
-    $.get('https://hidden-eyrie-35719.herokuapp.com/api/restaurants').then(
-      result => {
-        this.setState({ restaurants: result.data });
-      }
-    );
-  }
-
+class App extends React.Component {
   render() {
     return (
-      <div>
-        <SearchForm
-          changeHandler={this.handleChange}
-          clickHandler={this.handleClick}
-          value={this.state.input}
-        />
-
-        {this.state.results.length === 0 ? (
-          <NoResults />
-        ) : (
-          this.state.results.map((place, i) => (
-            <Result name={place.name} key={i} />
-          ))
-        )}
-      </div>
+      <BrowserRouter>
+        <div>
+          <header>
+            <nav>
+              <Link to={`/`}>Home</Link> |<Link to={`/search`}>Search</Link>
+            </nav>
+          </header>
+          <Switch>
+            <Route exact path="/" component={HomePage} />
+            <Route exact path="/search" component={SearchPage} />
+            <Route component={Error} />
+          </Switch>
+        </div>
+      </BrowserRouter>
     );
   }
 }
 
-export default SearchPage;
+export default App;
