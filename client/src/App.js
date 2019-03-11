@@ -1,85 +1,85 @@
-import React, { Component } from 'react';
-import Form from './components/Form';
-import Note from './components/Note';
-import * as $ from 'axios';
-import './app.css';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-class App extends Component {
+const Login = props => (
+  <form>
+    <input value={props.username} onChange={props.nameChange} />
+    <input value={props.password} onChange={props.passwordChange} />
 
+    {/* Challenge Solution version */}
+    {/* <input value={props.username} onChange={props.bothChange} name='username' />
+    <input value={props.password} onChange={props.bothChange} name='password' />  */}
+
+    <button onClick={props.submitHandler}> submit </button>
+  </form>
+);
+
+const Inventory = props => (
+  <div>
+    <h1>Book List</h1>
+    {props.bookList.map(book => (
+      <Book title={book.title} author={book.author} key={book.id} />
+    ))}
+  </div>
+);
+
+const Book = props => (
+  <div>
+    <h2>Title: {props.title}</h2>
+    <p>Author: {props.author}</p>
+  </div>
+);
+
+class Library extends React.Component {
   state = {
-    notesList: [],
-    newNote: '',
-    noteUpdate: '',
-    isUpdating: false,
-    updateId: ''
-  }
+    books: [
+      { title: 'Harry Potter', author: 'JK Rowling', id: 0 },
+      { title: 'Universe in a Nutshell', author: 'Stephen Hawking', id: 1 },
+      { title: 'Design Principles', author: 'Gang of Four', id: 2 },
+      { title: 'Lexicon', author: 'Max Barry', id: 3 },
+      { title: 'The Codex', author: 'Lev Grossman', id: 4 },
+      { title: 'Song of Solomon', author: 'Toni Morrison', id: 5 }
+    ],
+    username: '',
+    password: '',
+    isLoggedIn: false
+  };
 
-  update = (event) => {
+  handleSubmit = event => {
     event.preventDefault();
-    this.setState({isUpdating: false})
-    $.put(`/api/notes/${this.state.updateId}`, {content: this.state.noteUpdate})
-      .then(() => {
-        this.getNotes();
-      })
-  }
+    this.setState({ isLoggedIn: true });
+  };
 
-  handleClick = (event) => {
-    event.preventDefault();
-    $.post('/api/notes', { content: this.state.newNote })
-      .then(() => {
-        this.getNotes();
-      })
-  }
+  usernameChange = event => {
+    this.setState({ username: event.target.value });
+  };
 
-  getNotes = () => {
-    $.get('/api/notes')
-      .then((result) => {
-        this.setState({ notesList: result.data })
-      })
-  }
+  passwordChange = event => {
+    this.setState({ password: event.target.value });
+  };
 
-  componentDidMount() {
-    this.getNotes();
-  }
-
-  deleteHandler = (event) => {
-    $.delete(`/api/notes/${event.target.value}`)
-      .then(() => {
-        this.getNotes();
-      })
-  }
-
-  handleChange = (event) => {
-    this.setState({ newNote: event.target.value })
-  }
-
-  handleUpdate = event => {
-    this.setState({ noteUpdate: event.target.value })
-  }
-
-  showUpdate = (event) => {
-    this.setState({ isUpdating: true, updateId: event.target.value })
-  }
+  // Challenge
+  //   userAndPassChange = (event) => {
+  //     this.setState({ [event.target.name]: event.target.value });
+  //   }
 
   render() {
-    return (
-      <div className="App">
-        <Form val={this.state.newNote} changeHandler={this.handleChange} clickHandler={this.handleClick} heading='Add'/>
-        {this.state.isUpdating
-          ? <Form val={this.state.noteUpdate} changeHandler={this.handleUpdate} clickHandler={this.update} heading='Update'/>
-          : this.state.notesList.map(note => (
-            <Note  
-              key={note._id}
-              id={note._id} 
-              content={note.content} 
-              onUpdate={this.showUpdate} 
-              onDelete={this.deleteHandler}
-            />))
-        }
-        
+    return !this.state.isLoggedIn ? (
+      <Login
+        submitHandler={this.handleSubmit}
+        nameChange={this.usernameChange}
+        username={this.state.username}
+        passwordChange={this.passwordChange}
+        password={this.state.password}
+
+        // bothChange={this.userAndPassChange}
+      />
+    ) : (
+      <div>
+        <Inventory bookList={this.state.books} />
       </div>
     );
   }
 }
 
-export default App;
+ReactDOM.render(<Library />, document.getElementById('root'));
